@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.FileInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="fileInfoMap" type="cn.welfareZhu.item.myblog.model.FileInfo">
+        <id property="fileId" column="file_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="fileAuth" column="file_auth"/>
+        <result property="likeNum" column="like_num"/>
+        <result property="fileType" column="file_type"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileStatus" column="file_status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <association property="fileByte" column="file_id" javaType="cn.welfareZhu.item.myblog.model.FileByte"
+                     select="cn.welfareZhu.item.myblog.dao.FileByteDao.selectFileByteByFileId">
+            <id property="fileId" column="file_id"/>
+            <result property="fileByte" column="byte"/>
+        </association>
+    </resultMap>
+
+    <select id="selectFileInfoByFileId" parameterType="Integer" resultMap="fileInfoMap">
+        select * from file_info where file_id = #{fileId}
+    </select>
+
+    <select id="selectFileByAS" resultMap="fileInfoMap">
+        select * from file_info where file_auth = #{auth} and file_status = #{status} order by create_date desc
+    </select>
+
+    <select id="selectFileByUserIdAndAuth" resultMap="fileInfoMap">
+        select * from file_info where user_id = #{userId} and file_auth = #{auth} order by create_date desc
+    </select>
+
+    <select id="selectFileByUserIdAndStatus" resultMap="fileInfoMap">
+        select * from file_info where user_id = #{userId} and file_status = #{status} order by create_date desc
+    </select>
+
+    <select id="selectFileByUserIdAndAuthAndStatus" resultMap="fileInfoMap">
+        select * from file_info where user_id = #{userId} and file_auth = #{auth} and file_status = #{status} order by create_date desc
+    </select>
+
+    <insert id="insertFileInfo" parameterType="cn.welfareZhu.item.myblog.model.FileInfo" useGeneratedKeys="true"
+            keyProperty="fileId">
+        insert into file_info
+        (user_id,file_name,file_auth,like_num,file_type,file_path,file_status,create_date,modify_date)
+        values
+        (#{userId},#{fileName},#{fileAuth},#{likeNum},#{fileType},#{filePath},#{fileStatus},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateFilePath">
+        update file_info set file_path = #{path} , modify_date = now() where file_id = #{fileId}
+    </update>
+
+    <update id="updateFileAuth">
+        update file_info set file_auth = #{auth} , modify_date = now() where file_id = #{fileId}
+    </update>
+
+    <update id="updateFileStatus">
+        update file_info set file_status = #{status} , modify_date = now() where file_id = #{fileId}
+    </update>
+
+    <update id="increaseFileLikeNum" parameterType="Integer">
+        update file_info set like_num = like_num + 1 , modify_date = now() where file_id = #{fileId}
+    </update>
+
+</mapper>

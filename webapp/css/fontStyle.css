@@ -1,0 +1,11 @@
+@charset "UTF-8";
+.anchor-blue-color{
+    color: #1E9FFF;
+}
+.anchor-pink-color{
+    color: #eb7350;
+}
+#mainPad{
+    width: 100%;
+    height: auto;
+}

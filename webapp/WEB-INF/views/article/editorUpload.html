@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文章编辑上传页面</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+
+<div id="mainPad" class="layui-bg-gray">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h3>文章编辑上传</h3>
+        </div>
+        <div class="layui-card-body">
+            <div id="contentPad">
+                <form class="layui-form" method="post" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章标题</label>
+                        <div class="layui-input-inline">
+                            <input id="titleInput" name="title" required type="text" style="text-align: center;font-weight: bold;" class="layui-input" autocomplete="off"
+                            placeholder="请填写文章的标题，不超过15个汉字或者字母">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input id="submitBtn" type="submit" class="layui-btn" value="上传提交">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章权限</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="authValue" value="0" title="公开" checked>
+                            <input type="radio" name="authValue" value="1" title="私有">
+                            <input id="authInput" name="articleAuth" type="text" class="layui-input layui-hide">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章标签</label>
+                        <div class="layui-input-inline">
+                            <input id="labelValue" type="text" class="layui-input" placeholder="请输入或选择合适的标签"  autocomplete="off">
+                            <input id="labelInput" type="text" class="layui-input layui-hide" name="labelId">
+                        </div>
+                        <div class="layui-input-inline">
+                            <span class="layui-form-mid layui-word-aux">这关系到文章分类和检索</span>
+                        </div>
+                        <div class="layui-input-inline">
+                            <button id="labelConfirmBtn" class="layui-btn layui-btn-primary">确定标签</button>
+                        </div>
+                    </div>
+                    <textarea id="contentInput" name="content" placeholder="文章正文" style="display: none;"></textarea>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['element','form','layer','yutons_sug','layedit'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var yutons_sug=layui.yutons_sug;
+        var editor=layui.layedit;
+
+        editor.set({
+            uploadImage:{
+                url:'../article/uploadArticleImage'
+                ,type:'post'
+            }
+        });
+
+        var editorObject=editor.build('contentInput');
+
+        /**
+        yutons_sug.render({
+            id:'labelValue'
+            ,type:'sug'
+            ,url:'../article/queryArticleLabelValue'+'?labelString='
+        });
+         **/
+
+        $("#labelConfirmBtn").click(function () {
+            event.preventDefault();
+            var labelValue=$("#labelValue").val();
+            $.ajax({
+                url:'../article/getArticleLabelId'
+                ,type:'get'
+                ,data:{
+                    'labelValue':labelValue
+                }
+                ,success:function (result) {
+                    if (result==-1){
+                        swal({
+                            title:'系统消息'
+                            ,icon:'error'
+                            ,text:'服务器发生错误，标签值查询失败'
+                        });
+                        return false;
+                    }
+                    $('#labelInput').val(result);
+                    $('#labelValue').attr('disabled','disabled');
+                    $('#labelConfirmBtn').attr('disabled','disabled');
+                    return true;
+                }
+                ,error:function () {
+                    swal({
+                        title:'系统消息'
+                        ,icon:'error'
+                        ,text:'服务器发生错误'
+                    });
+                }
+            });
+        });
+
+        form.on('radio',function (data) {
+            var authValue=data.value;
+            $('#authInput').val(authValue);
+        });
+
+        $('#submitBtn').click(function () {
+            event.preventDefault();
+            var titleReg=/^([\u4E00-\u9FA5A-Za-z0-9_]|[\（\）\《\》\——\；\，\。\“\”\<\>\！]){1,15}$/;
+
+            var titleValue=$('#titleInput').val();
+            if ($.trim(titleValue)==''||titleValue==null){
+                layer.msg('输入标题不能为空');
+                return false;
+            }
+            if (!titleReg.test(titleValue)){
+                layer.msg('输入标题须由1-15个汉字、英文字母、数字以及下划线组成');
+                return false;
+            }
+
+            var articleContent=editor.getContent(editorObject);
+            var articleText=editor.getText(editorObject);
+
+            if (articleText.length<140) {
+                layer.msg('文章字数至少140字');
+                return false;
+            }
+
+            var labelValue=$('#labelValue').val();
+            if ($.trim(labelValue)==''||labelValue==null){
+                layer.msg('请设置文章类型标签')
+                return false;
+            }
+
+            var labelId=$('#labelInput').val();
+            if ($.trim(labelId)==''||labelId==null){
+                layer.msg('请确认标签类型');
+                return false;
+            }
+
+            var authStr=$('#authInput').val();
+            if (authStr==null||$.trim(authStr)==''){
+                authStr=0;
+            }
+
+            $.ajax({
+                url:'../article/uploadArticle'
+                ,type:'post'
+                ,data: {
+                    'title':titleValue
+                    ,'labelId':labelId
+                    ,'articleAuth':authStr
+                    ,'content':articleContent
+                }
+                ,success:function (result) {
+                    if (result==1){
+                        layer.msg('服务器发生错误，上传失败');
+                        return false;
+                    }
+                    if (result==0){
+                        layer.msg('上传成功！');
+                        location.href="../article/browseUserArticleList"+"?userId=0&pageNo=0";
+                    }
+                }
+                ,error:function () {
+                    layer.msg('服务器发生错误');
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

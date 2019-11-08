@@ -1,0 +1,14 @@
+@charset "UTF-8";
+#mainPad{
+    width: 70%;
+    height: auto;
+}
+#portraitPad{
+    border: 2px solid #9F9F9F;
+    width: 120px;
+    height: 120px;
+}
+.portraitImg{
+    width: 120px;
+    height: 120px;
+}

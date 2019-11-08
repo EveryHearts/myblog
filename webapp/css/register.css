@@ -1,0 +1,9 @@
+@charset "UTF-8";
+#mainPad{
+    width:30%;
+    height: auto;;
+    margin: 50px auto auto auto;
+}
+#titlePad{
+    text-align: center;
+}

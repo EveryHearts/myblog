@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.FileByteDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="fileByteMap" type="cn.welfareZhu.item.myblog.model.FileByte">
+        <id property="fileId" column="file_id"/>
+        <result property="fileByte" column="byte"/>
+    </resultMap>
+
+    <select id="selectFileByteByFileId" parameterType="Integer" resultMap="fileByteMap">
+        select * from file_byte where file_id = #{fileId}
+    </select>
+
+    <insert id="insertFileByte" parameterType="cn.welfareZhu.item.myblog.model.FileByte">
+        insert into file_byte
+        (file_id,byte)
+        values
+        (#{fileId},#{fileByte})
+    </insert>
+
+</mapper>

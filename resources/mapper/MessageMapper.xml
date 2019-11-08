@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.MessageDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="messageMap" type="cn.welfareZhu.item.myblog.model.Message">
+        <id property="messageId" column="message_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="visitorId" column="visitor_id"/>
+        <result property="content" column="content"/>
+        <result property="messageStatus" column="message_status"/>
+        <result property="messageType" column="message_type"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectMessageByUserId" parameterType="Integer" resultMap="messageMap">
+        select * from message where user_id = #{userId} and message_status = 1 order by create_date desc
+    </select>
+
+    <select id="selectMessageByMessageId" parameterType="Integer" resultMap="messageMap">
+        select * from message where message_id = #{messageId}
+    </select>
+
+    <insert id="insertMessage" parameterType="cn.welfareZhu.item.myblog.model.Message" useGeneratedKeys="true"
+    keyProperty="messageId">
+        insert into message
+        (user_id,visitor_id,content,message_status,message_type,create_date,modify_date)
+        values
+        (#{userId},#{visitorId},#{content},#{messageStatus},#{messageType},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateMessageStatus">
+        update message set message_status = #{messageStatus} , modify_date = now() where message_id = #{messageId}
+    </update>
+
+</mapper>

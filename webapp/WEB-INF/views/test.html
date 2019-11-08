@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript"
+            src="https://apis.map.qq.com/tools/geolocation/min?key=RGUBZ-RZ3CJ-WCUF2-KN525-BKWNV-QQFH4&referer=myblog"></script>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+</head>
+<body>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+<div style="width: 50%;margin: auto;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">输入框</label>
+            <div class="layui-input-block">
+                <a href="" class="layui-input">
+                    <img src="../sys/default/defaultPortrait.jpg" class="layui-nav-img">
+                    铁血丹心</a>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码框</label>
+            <div class="layui-input-block">
+                <input id="testInput" disabled type="text" class="layui-input" value="河南省灵宝市">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择框</label>
+            <div class="layui-input-block">
+                <select name="city" lay-verify="required">
+                    <option value=""></option>
+                    <option value="0">北京</option>
+                    <option value="1">上海</option>
+                    <option value="2">广州</option>
+                    <option value="3">深圳</option>
+                    <option value="4">杭州</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">复选框</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="like[write]" title="写作">
+                <input type="checkbox" name="like[read]" title="阅读" checked>
+                <input type="checkbox" name="like[dai]" title="发呆">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">开关</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="switch" lay-skin="switch">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">单选框</label>
+            <div class="layui-input-block">
+                <input type="radio" disabled name="sex" value="男" title="男">
+                <input type="radio" disabled name="sex" value="女" title="女" checked>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">文本域</label>
+            <div class="layui-input-block">
+                <textarea disabled name="desc" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">滑动验证</label>
+            <div class="layui-input-block">
+                <div id="slider"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                <button id="inform" type="button" class="layui-btn layui-btn-primary">GO!</button>
+            </div>
+        </div>
+    </form>
+</div>
+<textarea id="editor" style="display: none"></textarea>
+<button id="editorBtn">Test</button>
+<div id="editorContent"></div>
+<div id="editorText"></div>
+
+<div class="layui-card">
+    <div class="layui-card-header">卡片面板</div>
+    <div class="layui-card-body">
+        卡片式面板面板通常用于非白色背景色的主体内<br>
+        从而映衬出边框投影
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header">卡片面板</div>
+    <div class="layui-card-body">
+        卡片式面板面板通常用于非白色背景色的主体内<br>
+        从而映衬出边框投影
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header">卡片面板</div>
+    <div class="layui-card-body">
+        卡片式面板面板通常用于非白色背景色的主体内<br>
+        从而映衬出边框投影
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header">卡片面板</div>
+    <div class="layui-card-body">
+        卡片式面板面板通常用于非白色背景色的主体内<br>
+        从而映衬出边框投影
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header">卡片面板</div>
+    <div class="layui-card-body">
+        卡片式面板面板通常用于非白色背景色的主体内<br>
+        从而映衬出边框投影
+    </div>
+</div>
+
+layui.code
+<table lay-filter="demo">
+    <thead>
+    <tr>
+        <th lay-data="{field:'username', width:100}">昵称</th>
+        <th lay-data="{field:'experience', width:80, sort:true, edit:'text'}">积分</th>
+        <th lay-data="{field:'sign'}">签名</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>贤心1</td>
+        <td>66</td>
+        <td>人生就像是一场修行a</td>
+    </tr>
+    <tr>
+        <td>贤心2</td>
+        <td>88</td>
+        <td>人生就像是一场修行b</td>
+    </tr>
+    <tr>
+        <td>贤心3</td>
+        <td>33</td>
+        <td>人生就像是一场修行c</td>
+    </tr>
+    </tbody>
+</table>
+<script>
+    //Demo
+    function showPosition(position) {
+        console.log(JSON.stringify(position.province));
+        console.log(JSON.stringify(position.city));
+        console.log(JSON.stringify(position));
+    }
+
+    function showErr() {
+        console.log('EEROR!');
+    }
+
+    layui.use(['element', 'form', 'layer', 'yutons_sug', 'sliderVerify','layedit','table'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var element = layui.element;
+        var searchBox = layui.yutons_sug;
+        var slider = layui.sliderVerify.render({
+            elem: 'slider'
+        });
+        var editor=layui.layedit;
+
+        var table = layui.table;
+
+//转换静态表格
+        table.init('demo', {
+            height: 315 //设置高度
+            ,limit: 10 //注意：请务必确保 limit 参数（默认：10）是与你服务端限定的数据条数一致
+            //支持所有基础参数
+        });
+
+        var editorObject=editor.build('editor');
+
+        $('#editorBtn').click(function () {
+            var contentStr=editor.getContent(editorObject);
+            var textStr=editor.getText(editorObject);
+            $('#editorContent').html(contentStr);
+            $('#editorText').html(textStr);
+            layer.msg(textStr.length);
+        });
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            layer.msg(JSON.stringify(data.field));
+            return false;
+        });
+
+        $("#inform").click(function () {
+            swal({
+                title: 'OK',
+                content: 'Hello',
+                icon: 'success',
+                button: true
+            });
+        });
+
+        $('#testInput').removeAttr('disabled');
+
+        var geolocation = new qq.maps.Geolocation("Zhu_welfare", "RGUBZ-RZ3CJ-WCUF2-KN525-BKWNV-QQFH4");
+
+        geolocation.getLocation(showPosition, showErr);
+
+        console.log(returnCitySN['cip'] + "," + returnCitySN['cname']);
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件分享</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+
+<div id="mainPad">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            文件分享列表
+        </div>
+        <div class="layui-card-body">
+            @if(normalPart==null){
+            暂无文件
+            @}else{
+            第<span class="anchor-pink-color">${normalPart.pageNum}</span>页
+            -
+            共<span class="anchor-pink-color">${normalPart.pages}</span>页
+            -
+            当前页面共<span class="anchor-pink-color">${normalPart.size}</span>条文件记录
+            @if(normalPart.pageNum > 1){
+            @var prePageNo = normalPart.pageNum - 1;
+            <a class="anchor-blue-color" href="../file/browsePublicFileList?pageNo=${prePageNo}">上一页</a>
+            @}
+            @if(normalPart.pageNum < normalPart.pages){
+            @var nextPageNo = normalPart.pageNum +1;
+            <a class="anchor-blue-color" href="../file/browsePublicFileList?pageNo=${nextPageNo}">下一页</a>
+            @}
+            <br>
+            <table lay-filter="normalPartTable">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'createDate'}">上传时间</th>
+                    <th lay-data="{field:'fileName'}">文件名</th>
+                    <th lay-data="{field:'description'}">作者描述</th>
+                    <th lay-data="{field:'user'}">发布者</th>
+                    <th lay-data="{field:'operate'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for(file in normalPart.records){
+                <tr>
+                    <td>${file.createDate,"yyyy-MM-dd HH: mm:ss"}</td>
+                    <td>${file.fileName}</td>
+                    <td class="descriptionTd">${file.filePath}</td>
+                    <td class="Td">
+                        <a class="anchor-blue-color" target="_blank" href="../user/browseUserInfo?userId=${file.userId}">
+                            <img class="layui-nav-img" src="${file.userViaSrc}">${file.userNickname}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="../file/downloadFile?fileId=${file.fileId}" class="layui-bg-green layui-btn layui-btn-xs downLoadBtn"><span class="layui-hide">${file.fileId}</span>下载</a>
+                    </td>
+                </tr>
+                @}
+                </tbody>
+            </table>
+            <script type="text/javascript">
+                layui.use(['table'],function () {
+                    var table=layui.table;
+                    table.init('normalPartTable');
+                });
+            </script>
+            @}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['element','form','layer','table'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var table=layui.table;
+    });
+</script>
+</body>
+</html>

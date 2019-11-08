@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.LabelInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="labelInfoMap" type="cn.welfareZhu.item.myblog.model.LabelInfo">
+        <id property="labelId" column="label_id"/>
+        <result property="labelValue" column="label_value"/>
+        <result property="labelStatus" column="label_status"/>
+        <result property="useNum" column="use_num"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectLabelByLabelId" parameterType="Integer" resultMap="labelInfoMap">
+        select * from label_info where label_id = #{labelId}
+    </select>
+
+    <select id="selectLabelInfoByLabelValue" parameterType="String" resultMap="labelInfoMap">
+        select * from label_info where label_value = #{value}
+    </select>
+
+    <select id="selectLabelInfoByStringValue" parameterType="String" resultMap="labelInfoMap">
+        select * from label_info where label_value like '%${value}%' order by use_num desc
+    </select>
+
+    <insert id="insertLabelInfo" parameterType="cn.welfareZhu.item.myblog.model.LabelInfo" useGeneratedKeys="true"
+            keyProperty="labelId">
+        insert into label_info
+        (label_value,label_status,use_num,create_date,modify_date)
+        values
+        (#{labelValue},#{labelStatus},#{useNum},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateLabelInfoStatus">
+        update label_info set label_status = #{labelStatus},modify_date = now() where label_id = #{labelId}
+    </update>
+
+    <update id="increaseLabelUseNum" parameterType="Integer">
+        update label_info set use_num = use_num + 1 , modify_date = now() where label_id = #{labelId}
+    </update>
+
+</mapper>

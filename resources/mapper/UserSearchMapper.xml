@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao">
+
+    <cache/>
+
+    <resultMap id="userSearchMap" type="cn.welfareZhu.item.myblog.model.UserSearch">
+        <id property="userId" column="user_id"/>
+        <result property="userNickname" column="user_nickname"/>
+        <result property="userViaSrc" column="user_viaSrc"/>
+        <result property="userViaByte" column="user_viaByte"/>
+        <result property="isTourist" column="is_tourist"/>
+        <result property="userStatus" column="user_status"/>
+        <result property="userIp" column="user_ip"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectUserSearchByUserId" parameterType="Integer" resultMap="userSearchMap">
+        select * from user_search where user_id = #{userId}
+    </select>
+
+    <select id="selectUserSearchByNickname" parameterType="String" resultMap="userSearchMap">
+        select * from user_search where user_nickname = #{nickname}
+    </select>
+
+    <select id="selectUserSearchByUserIp" parameterType="String" resultMap="userSearchMap">
+        select * from user_search where user_ip = #{userIp}
+    </select>
+
+    <select id="selectUserSearchByStatus" resultMap="userSearchMap">
+        select * from user_search where user_status = #{status} order by modify_date desc , create_date desc
+    </select>
+
+    <select id="selectUserStatusByUserId" parameterType="Integer" resultType="int">
+        select user_status from user_search where user_id = #{userId}
+    </select>
+
+    <insert id="insertUserSearch" parameterType="cn.welfareZhu.item.myblog.model.UserSearch" useGeneratedKeys="true"
+            keyProperty="userId">
+        insert into user_search (user_nickname,user_viaSrc,user_viaByte,is_tourist,user_status,user_ip,create_date,modify_date)
+        values (#{userNickname},#{userViaSrc},#{userViaByte},#{isTourist},#{userStatus},#{userIp},#{createDate},#{modifyDate})
+        <selectKey resultType="int" keyProperty="userId" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="updateUserSearch" parameterType="cn.welfareZhu.item.myblog.model.UserSearch">
+        update user_search
+        <set>
+            <if test="userNickname != null">user_nickname = #{userNickname},</if>
+            <if test="userViaSrc != null">user_viaSrc = #{userViaSrc},</if>
+            <if test="userViaByte != null">user_viaByte = #{userViaByte},</if>
+            <if test="isTourist != null and isTourist != ''">is_tourist = #{isTourist},</if>
+            <if test="userStatus != null and userStatus != ''">user_status = #{userStatus},</if>
+            <if test="userIp != null">user_ip = #{userIp},</if>
+            modify_date = now()
+        </set>
+        where user_id = #{userId}
+    </update>
+
+</mapper>

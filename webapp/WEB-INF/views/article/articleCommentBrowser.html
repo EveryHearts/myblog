@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="mainCntPad">
+    <div class="layui-card">
+        <span id="articleIdSpan" style="display: none;">${articleId}</span>
+        <div class="layui-card-header">
+            <span class="anchor-pink-color">评论一下这篇文章吧~</span>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <textarea id="commentEditor" style="display: none;height: 100px;"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button id="commentBtn" class="layui-btn">发送评论</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <fieldset class="layui-elem-field">
+            <legend>评论区</legend>
+            <div class="layui-field-box">
+                @if(commentList==null){
+                暂无评论
+                @}else{
+                第<span class="anchor-pink-color">${pageNum}</span>页-当前页共<span class="anchor-pink-color">${size}</span>条评论-共<span class="anchor-pink-color">${pages}</span>页
+                @if(pageNum > 1){
+                @var prePageNum=pageNum-1;
+                <a class="anchor-blue-color" href="../article/browseArticleComment?articleId=${articleId}&pageNo=${prePageNum}">上一页</a>
+                @}
+                @if(pageNum < pages){
+                @var nextPageNum=pageNum+1;
+                <a class="anchor-blue-color" href="../article/browseArticleComment?articleId=${articleId}&pageNo=${nextPageNum}">下一页</a>
+                @}
+                @for(commentMap in commentList){
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <span class="anchor-pink-color">${commentMap.comment.createDate,"yyyy-MM-dd HH:mm:ss"}</span>
+                        <a target="_blank" class="anchor-blue-color" href="../user/browseUserInfo?userId=${commentMap.comment.userId}">${commentMap.comment.userNickname}</a>
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="commentPad">
+                            ${commentMap.comment.content}
+                            <a href="" style="float: right" class="anchor-blue-color replyBtn">
+                                <span style="display: none;" class="commentIdSpan">${commentMap.comment.articleCommentId}</span>
+                                <span style="display: none;" class="articleIdSpan">${commentMap.comment.articleId}</span>
+                                <span style="display: none;" class="clientIdSpan">${commentMap.comment.userId}</span>
+                                回复
+                            </a>
+                            <div class="commentEditor">
+                                <div class="layui-form-item layui-form-text">
+                                    <div class="layui-input-block">
+                                        <textarea placeholder="请输入内容" class="layui-textarea commentTextarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button class="layui-btn replySubmitBtn" >提交评论</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if(commentMap.replies!=null){
+                        <hr class="layui-bg-blue">
+                        @for(reply in commentMap.replies){
+                        <div class="replyPad">
+                            <span class="anchor-pink-color">${reply.createDate,"yyyy-MM-dd HH:mm:ss"}</span>
+                            <a target="_blank" class="anchor-blue-color" href="../user/browseUserInfo?userId=${reply.userId}">${reply.userNickname}</a>
+                            回复
+                            <a target="_blank" class="anchor-blue-color" href="../user/browseUserInfo?userId=${reply.clientId}">${reply.clientNickname}</a>
+                            :
+                            <br>
+                            <p style="text-indent: 2em">${reply.content}</p>
+                            <a href="" style="float: right" class="anchor-blue-color repliesBtn">
+                                <span style="display: none;" class="commentIdSpan">${reply.articleCommentId}</span>
+                                <span style="display: none;" class="articleIdSpan">${reply.articleId}</span>
+                                <span style="display: none;" class="clientIdSpan">${reply.userId}</span>
+                                回复
+                            </a>
+                            <div class="replyEditor">
+                                <div class="layui-form-item layui-form-text">
+                                    <div class="layui-input-block">
+                                        <textarea placeholder="请输入内容" class="layui-textarea replyTextarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button class="layui-btn repliesSubmitBtn" >提交评论</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @}
+                        @}
+                    </div>
+                </div>
+                @}
+                @}
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var commentPad=null;
+    var replyPad=null;
+    layui.use(['element','form','layer','layedit'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var layedit=layui.layedit;
+
+        var editor=layedit.build(
+            'commentEditor'
+            ,{
+                tool:['left', 'center', 'right', '|', 'face']
+                ,height:100
+            }
+        );
+
+        $('#commentBtn').click(function () {
+            event.preventDefault();
+            var articleId=$('#articleIdSpan').html();
+            var commentText=layedit.getText(editor);
+            var commentContent=layedit.getContent(editor);
+            if (commentText==null||$.trim(commentText)==''){
+                layer.msg('请输入文字之后再提交');
+                return false;
+            }
+            $.ajax({
+                url:'../article/addArticleComment'
+                ,type:'post'
+                ,data:{
+                    'articleId':articleId
+                    ,'content':commentContent
+                }
+                ,success:function (result) {
+                    if (result==1){
+                        layer.msg('发送评论失败，请检查你的登陆状态');
+                        return false;
+                    }
+                    if (result==0){
+                        layer.msg('评论成功！');
+                        location.reload();
+                    }
+                }
+                ,error:function () {
+                    layer.msg('系统出现错误，请求失败');
+                }
+            });
+        });
+
+        $('.commentEditor').hide();
+
+        $('.replyBtn').click(function () {
+            event.preventDefault();
+            $('.replyEditor').hide();
+            $('.commentEditor').hide();
+            commentPad=$(this).parent('.commentPad');
+            $(this).parent('.commentPad').find('.commentEditor').show();
+        });
+
+        $('.replySubmitBtn').click(function () {
+            event.preventDefault();
+            var replyContent=commentPad.find('textarea.commentTextarea').val();
+            //console.log(replyContent.length);
+            if (replyContent.length<=0){
+                layer.msg('请输入文字后再提交');
+                return false;
+            }
+            var articleId=commentPad.find('span.articleIdSpan').html();
+            var commentId=commentPad.find('span.commentIdSpan').html();
+            var clientId=commentPad.find('span.clientIdSpan').html();
+
+            $.ajax({
+                url:'../article/addArticleReply'
+                ,type:'post'
+                ,data: {
+                    'commentId':commentId
+                    ,'clientId':clientId
+                    ,'mainObjectId':articleId
+                    ,'content':replyContent
+                }
+                ,success:function (result) {
+                    if (result==1){
+                        layer.msg('提交回复失败。请检查你的登陆状态');
+                    }
+                    if (result==0){
+                        layer.msg('提交成功');
+                        location.reload();
+                    }
+                }
+                ,error:function () {
+                    layer.msg('提交失败，系统出现错误');
+                }
+            });
+        });
+
+        $('.replyEditor').hide();
+
+        $('.repliesBtn').click(function () {
+            event.preventDefault();
+            $('.replyEditor').hide();
+            $('.commentEditor').hide();
+            replyPad=$(this).parent('.replyPad');
+            $(this).parent('.replyPad').find('.replyEditor').show();
+        });
+
+        $('.repliesSubmitBtn').click(function () {
+            event.preventDefault();
+            var replyContent=replyPad.find('textarea.replyTextarea').val();
+            //console.log(replyContent.length);
+            if (replyContent.length<=0){
+                layer.msg('请输入文字后再提交');
+                return false;
+            }
+
+            var articleId=replyPad.find('span.articleIdSpan').html();
+            var commentId=replyPad.find('span.commentIdSpan').html();
+            var clientId=replyPad.find('span.clientIdSpan').html();
+
+            $.ajax({
+                url:'../article/addArticleReply'
+                ,type:'post'
+                ,data: {
+                    'commentId':commentId
+                    ,'clientId':clientId
+                    ,'mainObjectId':articleId
+                    ,'content':replyContent
+                }
+                ,success:function (result) {
+                    if (result==1){
+                        layer.msg('提交回复失败。请检查你的登陆状态');
+                    }
+                    if (result==0){
+                        layer.msg('提交成功');
+                        location.reload();
+                    }
+                }
+                ,error:function () {
+                    layer.msg('提交失败，系统出现错误');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

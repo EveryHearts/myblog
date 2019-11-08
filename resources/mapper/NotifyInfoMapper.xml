@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.NotifyInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="notifyInfoMap" type="cn.welfareZhu.item.myblog.model.NotifyInfo">
+        <id property="notifyId" column="notify_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="originUserId" column="origin_user_id"/>
+        <result property="originId" column="origin_id"/>
+        <result property="content" column="content"/>
+        <result property="notifyType" column="notify_type"/>
+        <result property="notifyAuth" column="notify_auth"/>
+        <result property="notifyStatus" column="notify_status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectNotifyInfoByNotifyId" parameterType="Integer" resultMap="notifyInfoMap">
+        select * from notify_info where notify_id = #{notifyId}
+    </select>
+
+    <select id="selectNotifyInfoByUserId" resultMap="notifyInfoMap">
+        select * from notify_info where user_id = #{userId}
+        <if test="notifyStatus == 0">
+            and notify_status = #{notifyStatus}
+        </if>
+        <if test="notifyStatus == 1">
+            and notify_status in (0,1)
+        </if>
+        order by create_date desc
+    </select>
+
+    <select id="countNotifyInfoByUserId" resultType="Integer">
+        select count(*) from notify_info where user_id = #{userId} and notify_status = #{notifyStatus}
+    </select>
+
+    <select id="selectNotifyInfoByTAS" resultMap="notifyInfoMap">
+        select * from notify_info where notify_type = #{type} and notify_auth =#{auth} and notify_status = #{status}
+        order by create_date desc
+    </select>
+
+    <select id="countNotifyInfoByTAS" resultType="Integer">
+        select count(*) from notify_info where notify_type = #{type} and notify_auth = #{auth} and notify_status = #{status}
+    </select>
+
+    <select id="countNotifyInfoByAuthAndStatus" resultType="Integer">
+        select count(*) from notify_info where notify_auth = #{auth} and notify_status = #{status}
+    </select>
+
+    <insert id="insertNotifyInfo" parameterType="cn.welfareZhu.item.myblog.model.NotifyInfo" useGeneratedKeys="true"
+    keyProperty="notifyId">
+        insert into notify_info
+        (user_id,origin_user_id,origin_id,content,notify_type,notify_auth,notify_status,create_date,modify_date)
+        values
+        (#{userId},#{originUserId},#{originId},#{content},#{notifyType},#{notifyAuth},#{notifyStatus},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateNotifyStatusByNotifyId">
+        update notify_info set notify_status = #{notifyStatus} , modify_date = now() where notify_id = #{notifyId}
+    </update>
+
+</mapper>

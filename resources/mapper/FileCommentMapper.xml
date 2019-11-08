@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.FileCommentDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="fileCommentMap" type="cn.welfareZhu.item.myblog.model.FileComment">
+        <id property="fileCommentId" column="file_comment_id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="content" column="content"/>
+        <result property="userId" column="user_id"/>
+        <result property="clientId" column="client_id"/>
+        <result property="commentType" column="comment_type"/>
+        <result property="commentStatus" column="comment_status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectFileCommentByCommentId" parameterType="Integer" resultMap="fileCommentMap">
+        select * from file_comment where file_comment_id = #{commentId}
+    </select>
+
+    <select id="selectCommentByFileIdAndST" resultMap="fileCommentMap">
+        select * from file_comment where file_id = #{fileId} and comment_status = #{status} and comment_type = #{type} order by create_date desc
+    </select>
+
+    <insert id="insertFileComment" parameterType="cn.welfareZhu.item.myblog.model.FileComment" useGeneratedKeys="true"
+            keyProperty="fileCommentId">
+        insert into file_comment
+        (file_id,content,user_id,client_id,comment_type,comment_status,create_date,modify_date)
+        values
+        (#{fileId},#{content},#{userId},#{clientId},#{commentType},#{commentStatus},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateCommentStatus">
+        update file_comment set comment_status = #{status} where file_comment_id = #{commentId}
+    </update>
+
+</mapper>

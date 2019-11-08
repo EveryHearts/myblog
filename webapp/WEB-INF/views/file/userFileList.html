@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${accessUser.userNickname}的文件列表</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+
+<div id="mainPad">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <a class="anchor-blue-color" target="_blank" href="../user/browseUserInfo?userId=${accessUser.userId}">
+                <img class="layui-nav-img" src="${accessUser.viaSrc}">${accessUser.userNickname}
+            </a>的文件列表
+        </div>
+        <div class="layui-card-body">
+            @if(session['loginStatus']==1 && accessUser.userId == session['loginUser'].userId){
+            <div class="layui-tab layui-tab-card">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">已发布</li>
+                    <li>待审核</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item">
+                        @if(normalPart==null){
+                        暂无文件
+                        @}else{
+                        第<span class="anchor-pink-color">${normalPart.pageNum}</span>页
+                        -
+                        共<span class="anchor-pink-color">${normalPart.pages}</span>页
+                        -
+                        当前页面共<span class="anchor-pink-color">${normalPart.size}</span>条文件记录
+                        @if(normalPart.pageNum > 1){
+                        @var prePageNo = normalPart.pageNum - 1;
+                        <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${prePageNo}">上一页</a>
+                        @}
+                        @if(normalPart.pageNum < normalPart.pages){
+                        @var nextPageNo = normalPart.pageNum +1;
+                        <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${nextPageNo}">下一页</a>
+                        @}
+                        <br>
+                        <table lay-filter="normalPartTable">
+                            <thead>
+                            <tr>
+                                <th class="layui-hide" lay-data="{field:'fileId',width:80}">文件ID</th>
+                                <th lay-data="{field:'createDate'}">上传时间</th>
+                                <th lay-data="{field:'fileName'}">文件名</th>
+                                <th lay-data="{field:'description',edit:'text'}">作者描述</th>
+                                <th lay-data="{field:'auth'}">文件权限</th>
+                                <th lay-data="{field:'operate'}">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @for(file in normalPart.records){
+                            <tr>
+                                <td class="layui-hide">${file.fileId}</td>
+                                <td>${file.createDate,"yyyy-MM-dd HH: mm:ss"}</td>
+                                <td>${file.fileName}</td>
+                                <td id="n${file.fileId}" lay-filter="descriptionTd" class="descriptionTd">${file.filePath}</td>
+                                <td class="authTd">
+                                    @if(file.fileAuth == 0){
+                                    <span class="layui-badge authSpan layui-bg-green">公开</span>
+                                    <button class="layui-bg-cyan layui-btn layui-btn-xs modifyAuthBtn">
+                                        <span class="fileAuth layui-hide">1</span>
+                                        <span class="fileId layui-hide">${file.fileId}</span>修改权限</button>
+                                    @}
+                                    @if(file.fileAuth == 1){
+                                    <span class="layui-badge statusSpan layui-bg-blue">私有</span>
+                                    <button class="layui-bg-cyan layui-btn layui-btn-xs modifyAuthBtn">
+                                        <span class="fileAuth layui-hide">0</span>
+                                        <span class="fileId layui-hide">${file.fileId}</span>修改权限</button>
+                                    @}
+                                </td>
+                                <td>
+                                    <a href="../file/downloadFile?fileId=${file.fileId}" class="layui-bg-green layui-btn layui-btn-xs downLoadBtn"><span class="layui-hide">${file.fileId}</span>下载</a>
+                                    <button class="layui-bg-orange layui-btn layui-btn-xs deleteBtn"><span class="layui-hide">${file.fileId}</span>删除文件</button>
+                                </td>
+                            </tr>
+                            @}
+                            </tbody>
+                        </table>
+                        @}
+                    </div>
+                    <div class="layui-tab-item">
+                        @if(toAuditPart==null){
+                        暂无文件
+                        @}else{
+                        第<span class="anchor-pink-color">${toAuditPart.pageNum}</span>页
+                        -
+                        共<span class="anchor-pink-color">${toAuditPart.pages}</span>页
+                        -
+                        当前页面共<span class="anchor-pink-color">${toAuditPart.size}</span>条文件记录
+                        @if(toAuditPart.pageNum > 1){
+                        @var prePageNo = toAuditPart.pageNum - 1;
+                        <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${prePageNo}">上一页</a>
+                        @}
+                        @if(toAuditPart.pageNum < toAuditPart.pages){
+                        @var nextPageNo = toAuditPart.pageNum +1;
+                        <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${nextPageNo}">下一页</a>
+                        @}
+                        <br>
+                        <table lay-filter="toAuditPartTable">
+                            <thead>
+                            <tr>
+                                <th class="layui-hide" lay-data="{field:'fileId',width:80}">文件ID</th>
+                                <th lay-data="{field:'createDate'}">上传时间</th>
+                                <th lay-data="{field:'fileName'}">文件名</th>
+                                <th lay-data="{field:'description',edit:'text'}">作者描述</th>
+                                <th lay-data="{field:'auth'}">文件权限</th>
+                                <th lay-data="{field:'operate'}">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @for(file in toAuditPart.records){
+                            <tr>
+                                <td class="layui-hide">${file.fileId}</td>
+                                <td>${file.createDate,"yyyy-MM-dd HH: mm:ss"}</td>
+                                <td>${file.fileName}</td>
+                                <td id="t${file.fileId}" lay-filter="descriptionTd" class="descriptionTd">${file.filePath}</td>
+                                <td class="authTd">
+                                    @if(file.fileAuth == 0){
+                                    <span class="layui-badge authSpan layui-bg-green">公开</span>
+                                    <button class="layui-bg-cyan layui-btn layui-btn-xs modifyAuthBtn">
+                                        <span class="fileAuth layui-hide">1</span>
+                                        <span class="fileId layui-hide">${file.fileId}</span>修改权限</button>
+                                    @}
+                                    @if(file.fileAuth == 1){
+                                    <span class="layui-badge statusSpan layui-bg-blue">私有</span>
+                                    <button class="layui-bg-cyan layui-btn layui-btn-xs modifyAuthBtn">
+                                        <span class="fileAuth layui-hide">0</span>
+                                        <span class="fileId layui-hide">${file.fileId}</span>修改权限</button>
+                                    @}
+                                </td>
+                                <td>
+                                    <a href="../file/downloadFile?fileId=${file.fileId}" class="layui-bg-green layui-btn layui-btn-xs downLoadBtn"><span class="layui-hide">${file.fileId}</span>下载</a>
+                                    <button class="layui-bg-orange layui-btn layui-btn-xs deleteBtn"><span class="layui-hide">${file.fileId}</span>删除文件</button>
+                                </td>
+                            </tr>
+                            @}
+                            </tbody>
+                        </table>
+                        <script type="text/javascript">
+                            layui.use(['table','layer'],function () {
+                                var table=layui.table;
+                                var layer=layui.layer;
+                                table.init('normalPartTable');
+                                table.init('toAuditPartTable');
+
+                                $('.modifyAuthBtn').click(function () {
+                                    event.preventDefault();
+                                    var fileAuth=$(this).find('.fileAuth').html();
+                                    var fileId=$(this).find('.fileId').html();
+                                    $.ajax({
+                                        url:'../file/modifyFileAuth'
+                                        ,type:'get'
+                                        ,data:{
+                                            'fileId':fileId
+                                            ,'auth':fileAuth
+                                        }
+                                        ,success:function (res) {
+                                            if (res==1){
+                                                layer.msg('你还未登陆，无法完成此请求');
+                                            }
+                                            if (res==-1){
+                                                layer.msg('你没有权限完成此操作');
+                                            }
+                                            if (res==0){
+                                                layer.msg('完成操作');
+                                                location.reload();
+                                            }
+                                        }
+                                        ,error:function () {
+                                            layer.msg('服务器出现异常');
+                                        }
+                                    });
+                                });
+
+                                $('.deleteBtn').click(function () {
+                                    event.preventDefault();
+                                    var fileId=$(this).find('span').html();
+
+                                    swal({
+                                        icon:'warning'
+                                        ,title:'系统消息'
+                                        ,text:'你确定要删除此文件吗？删除后将无法恢复'
+                                        ,buttons:{
+                                            cancel:true
+                                            ,confirm:{
+                                                text:'确定'
+                                                ,value:true
+                                                ,closeModal:true
+                                            }
+                                        }
+                                    }).then(function (value) {
+                                        if (value){
+                                            $.ajax({
+                                                url:'../file/deleteFile'
+                                                ,type:'get'
+                                                ,data:{
+                                                    'fileId':fileId
+                                                }
+                                                ,success:function (res) {
+                                                    if (res==1){
+                                                        layer.msg('你还未登陆，无法完成此请求');
+                                                    }
+                                                    if (res==-1){
+                                                        layer.msg('你没有权限完成此操作');
+                                                    }
+                                                    if (res==0){
+                                                        layer.msg('完成操作');
+                                                        location.reload();
+                                                    }
+                                                }
+                                                ,error:function () {
+                                                    layer.msg('系统出现异常，无法完成请求');
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
+
+                                table.on('edit', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+                                    var description=obj.value;
+                                    var fileId=obj.data.fileId;
+                                    if ($.trim(description).length<=0||$.trim(description).length>20) {
+                                        layer.msg('请输入20字以内的描述');
+                                        return false;
+                                    }
+                                    $.ajax({
+                                        url:'../file/modifyFileDescription'
+                                        ,type:'get'
+                                        ,data:{
+                                            'fileId':fileId
+                                            ,'description':description
+                                        }
+                                        ,success:function (res) {
+                                            if (res==1){
+                                                layer.msg('你还未登陆，无法完成此请求');
+                                            }
+                                            if (res==-1){
+                                                layer.msg('你没有权限完成此操作');
+                                            }
+                                            if (res==0){
+                                                layer.msg('修改成功');
+                                            }
+                                        }
+                                        ,error:function () {
+                                            layer.msg('系统出现异常，无法完成请求');
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                        @}
+                    </div>
+                </div>
+            </div>
+            @}else{
+            @if(normalPart==null){
+            暂无文件
+            @}else{
+            第<span class="anchor-pink-color">${normalPart.pageNum}</span>页
+            -
+            共<span class="anchor-pink-color">${normalPart.pages}</span>页
+            -
+            当前页面共<span class="anchor-pink-color">${normalPart.size}</span>条文件记录
+            @if(normalPart.pageNum > 1){
+            @var prePageNo = normalPart.pageNum - 1;
+            <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${prePageNo}">上一页</a>
+            @}
+            @if(normalPart.pageNum < normalPart.pages){
+            @var nextPageNo = normalPart.pageNum +1;
+            <a class="anchor-blue-color" href="../file/browseUserFileList?userId=${accessUser.userId}&pageNo=${nextPageNo}">下一页</a>
+            @}
+            <br>
+            <table lay-filter="normalPartTable">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'createDate'}">上传时间</th>
+                    <th lay-data="{field:'fileName'}">文件名</th>
+                    <th lay-data="{field:'description'}">作者描述</th>
+                    <th lay-data="{field:'auth'}">文件权限</th>
+                    <th lay-data="{field:'operate'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for(file in normalPart.records){
+                <tr>
+                    <td>${file.createDate,"yyyy-MM-dd HH: mm:ss"}</td>
+                    <td>${file.fileName}</td>
+                    <td class="descriptionTd">${file.filePath}</td>
+                    <td class="authTd">
+                        @if(file.fileAuth == 0){
+                        <span class="layui-badge authSpan layui-bg-green">公开</span>
+                        @}
+                        @if(file.fileAuth == 1){
+                        <span class="layui-badge statusSpan layui-bg-blue">私有</span>
+                        @}
+                    </td>
+                    <td>
+                        <a href="../file/downloadFile?fileId=${file.fileId}" class="layui-bg-green layui-btn layui-btn-xs downLoadBtn"><span class="layui-hide">${file.fileId}</span>下载</a>
+                    </td>
+                </tr>
+                @}
+                </tbody>
+            </table>
+            <script type="text/javascript">
+                layui.use(['table'],function () {
+                    var table=layui.table;
+                    table.init('normalPartTable');
+                });
+            </script>
+            @}
+            @}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['element','form','layer','table'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var table=layui.table;
+    });
+</script>
+</body>
+</html>

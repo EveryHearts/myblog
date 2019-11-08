@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册新用户</title>
+    <script type="text/javascript"
+            src="https://apis.map.qq.com/tools/geolocation/min?key=RGUBZ-RZ3CJ-WCUF2-KN525-BKWNV-QQFH4&referer=myblog"></script>
+    <script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/register.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="mainPad">
+    <div id="titlePad">
+        <h3>注册页面</h3>
+    </div>
+    <form id="registerForm" class="layui-form" method="post" action="../user/registerAccount">
+        <div id="errorMsg" class="layui-form-mid" style="color:red;">
+            ${modelMessage!}
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">昵称</label>
+            <div class="layui-input-block">
+                <input id="nicknameInput" class="layui-input" name="userNickname" type="text" autocomplete="off" required placeholder="请输入你喜欢的昵称">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">账号</label>
+            <div class="layui-input-block">
+                <input id="accountInput" class="layui-input" name="account" type="text" autocomplete="off" required placeholder="请设置你的登录账号">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input id="passwordInput" class="layui-input" name="password" type="password" autocomplete="off" required placeholder="请设置你的密码">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码确认</label>
+            <div class="layui-input-block">
+                <input id="passwordConfirm" class="layui-input" type="password" autocomplete="off" placeholder="再次确认你的密码">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">安全码</label>
+            <div class="layui-input-block">
+                <input id="securityCodeInput" class="layui-input" name="securityCode" type="password" autocomplete="off" required placeholder="安全码用于你修改密码等需要">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">安全码确认</label>
+            <div class="layui-input-block">
+                <input id="securityCodeConfirm" class="layui-input" type="password" autocomplete="OFF" placeholder="请再次输入安全码">
+            </div>
+        </div>
+        <div class="layui-form-item layui-hide">
+            <label class="layui-form-label">用户IP</label>
+            <div class="layui-input-block">
+                <input id="userIpInput" class="layui-input" name="userIp" type="text">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">滑动验证</label>
+            <div class="layui-input-block">
+                <div id="slider"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input id="submitBtn" type="submit" class="layui-btn" onclick="checkSubmit()" value="提交注册">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                <a class="layui-btn layui-btn-primary" href="../user/loginPage" target="_self">返回</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    var nicknameReg=/^[\u4E00-\u9FA5A-Za-z0-9_]{1,15}$/;
+    var accountReg=/^[a-zA-Z0-9]{8,16}$/;
+    var passwordReg=/^[a-zA-Z0-9]{6,16}$/;
+    var securityCodeReg=/^[a-zA-Z0-9]{6,16}$/;
+
+    function checkNickname(){
+        var nicknameStr=$('#nicknameInput').val();
+        if (nicknameStr.trim()==''){
+            $('#errorMsg').html('请填写合法的昵称');
+            return false;
+        }
+        if (!nicknameReg.test(nicknameStr)){
+            $('#errorMsg').html('你的昵称不合法，昵称需用1-15个汉字、英文字母、下划线和数字组成');
+            return false;
+        }else{
+            $('#errorMsg').html('');
+        }
+        return true;
+    }
+
+    function checkAccount(){
+        var account=$('#accountInput').val();
+        var res=false;
+        if (account.trim()==''){
+            $('#errorMsg').html('请输入合法的账号')
+            return false;
+        }else{
+            $('#errorMsg').html('');
+        }
+        if (!accountReg.test(account)){
+            $('#errorMsg').html('你的账号不合法，账号需由8-16个英文字母或者数字组成')
+            return false;
+        }else{
+            $('#errorMsg').html('');
+        }
+        $.ajax({
+            url:'../user/checkAccount'
+            ,type:'post'
+            ,data:{
+                'account':account
+            },success:function (result) {
+                if (result==1){
+                    $('#errorMsg').html('账号已经存在，请重新填写账号');
+                }else{
+                    $('#errorMsg').html('');
+                    res=true;
+                }
+            },error:function () {
+                swal({
+                    title:'系统消息'
+                    ,icon:'error'
+                    ,text:'服务器出错'
+                });
+            }
+        });
+        return res;
+    }
+
+    function checkPassword(){
+        var password=$('#passwordInput').val();
+        var passwordConfirm=$('#passwordConfirm').val();
+        if (password.trim()==''){
+            $('#errorMsg').html('请输入合法的密码');
+            return false;
+        } else{
+            $('#errorMsg').html('');
+        }
+        if (!passwordReg.test(password)){
+            $('#errorMsg').html('你设置的密码不合法，密码需由6-16位英文字母和数字组成');
+            return false;
+        } else{
+            $('#errorMsg').html('');
+        }
+        if (password!=passwordConfirm) {
+            $('#errorMsg').html('两次输入的密码不一致');
+            return false;
+        }else{
+            $('#errorMsg').html('');
+        }
+        return true;
+    }
+
+    function checkSecurityCode(){
+        var securityCode=$('#securityCodeInput').val();
+        var securityCodeConfirm=$('#securityCodeConfirm').val();
+        if (securityCode.trim()==''){
+            $('#errorMsg').html('请填写合法的安全码');
+            return false;
+        } else{
+            $('#errorMsg').html('');
+        }
+        if (!securityCodeReg.test(securityCode)){
+            $('#errorMsg').html('你设置的安全码不合法，密码需由6-16位英文字母和数字组成');
+            return false;
+        } else{
+            $('#errorMsg').html('');
+        }
+        if (securityCode!=securityCodeConfirm){
+            $('#errorMsg').html('两次输入的安全码不一致');
+            return false;
+        } else{
+            $('#errorMsg').html('');
+        }
+        return true;
+    }
+
+    function checkSubmit(){
+        $('#userIpInput').val(returnCitySN['cip']);
+        if (!checkNickname()){
+            return false;
+        }
+        if (!checkAccount()){
+            return  false;
+        }
+        if (!checkPassword()){
+            return false;
+        }
+        if (!checkSecurityCode()){
+            return false;
+        }
+        $('#registerForm').submit();
+        return true;
+    }
+
+    layui.use(['element','form','layer','sliderVerify'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var slider=layui.sliderVerify.render({
+            elem:'#slider'
+        });
+
+        $('#nicknameInput').keyup(function () {
+            checkNickname();
+        });
+
+        $('#accountInput').keyup(function () {
+            checkAccount();
+        });
+
+        $('#passwordInput').keyup(function () {
+            checkPassword();
+        });
+
+        $('#passwordConfirm').keyup(function () {
+            checkPassword();
+        });
+
+        $('#securityCodeInput').keyup(function () {
+            checkSecurityCode();
+        });
+
+        $('#securityCodeConfirm').keyup(function () {
+            checkSecurityCode();
+        });
+
+        form.on('submit',function () {
+            if (!slider.isOk()) {
+                layer.msg('请滑动滑块完成验证');
+                return false;
+            }
+        });
+    });
+</script>
+</body>
+</html>

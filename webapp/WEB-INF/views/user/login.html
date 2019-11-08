@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账号登录</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/login.css">
+</head>
+<body>
+<div id="mainPad">
+    <div id="titlePad">
+        <h3>登录页面</h3>
+    </div>
+    <form class="layui-form" method="post">
+        <div id="errorMsg" class="layui-form-mid" style="color: red"></div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">账号</label>
+            <div class="layui-input-block">
+                <input id="account" name="account" type="text" class="layui-input" required placeholder="请输入账号" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input id="password" name="password" type="password" class="layui-input" required placeholder="请输入密码" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">滑动验证</label>
+            <div class="layui-input-block">
+                <div id="slider"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" id="submitBtn" >登录</button>
+                <button id="registerBtn" class="layui-btn layui-btn-primary">注册</button>
+                <a class="layui-btn layui-btn-primary" onclick="returnHistory()">返回</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    function returnHistory(){
+        history.back();
+    }
+    layui.use(['element','form','layer','sliderVerify'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var slider=layui.sliderVerify.render({
+            elem:'#slider'
+        });
+        $("#submitBtn").click(function () {
+            event.preventDefault();
+            var account=$("#account").val();
+            var password=$("#password").val();
+            if (account.trim()==''||account==null){
+                $("#errorMsg").html("请输入账号！");
+                return;;
+            }else{
+                $("#errorMsg").html("");
+            }
+            if (password.trim()==''||password==null){
+                $("#errorMsg").html("请输入密码！");
+                return;;
+            }else{
+                $("#errorMsg").html("");
+            }
+            if(!slider.isOk()){
+                layer.msg("请滑动通过验证");
+                return;
+            }
+            $.ajax({
+                url:'../user/loginAccount'
+                ,type:'post'
+                ,data:{
+                    'account':account,
+                    'password':password
+                },success:function (result) {
+                    if (result==0){
+                        location.href='../home/homePage';
+                    }else{
+                        swal({
+                            title:'系统消息'
+                            ,text:'您输入的账号密码有误或者账号不存在'
+                            ,icon:'info'
+                        });
+                    }
+                },error:function () {
+                    swal({
+                        title:'系统消息'
+                        ,text:'服务器出错或者链接失败'
+                        ,icon:'error'
+                    });
+                }
+            });
+        });
+        $('#registerBtn').click(function () {
+            event.preventDefault();
+            location.href='../user/registerPage';
+        });
+    });
+</script>
+</body>
+</html>

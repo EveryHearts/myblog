@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.LinkInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="linkInfoMap" type="cn.welfareZhu.item.myblog.model.LinkInfo">
+        <id property="linkId" column="link_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="linkSrc" column="link_src"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="labelId" column="label_id"/>
+        <result property="likeNum" column="like_num"/>
+        <result property="linkStatus" column="link_status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectLinkInfoByLinkId" parameterType="Integer" resultMap="linkInfoMap">
+        select * from link_info where link_id = #{linkId}
+    </select>
+
+    <select id="selectLinkByStatus" parameterType="Integer" resultMap="linkInfoMap">
+        select * from link_info where link_status = #{status} order by create_date desc
+    </select>
+
+    <select id="countLinkByStatus" parameterType="Integer" resultType="int">
+        select count(*) from link_info where link_status = #{status}
+    </select>
+
+    <select id="selectLinkBySL" resultMap="linkInfoMap">
+        select * from link_info where link_status = #{status} and label_id = #{labelId} order by create_date desc , like_num desc
+    </select>
+
+    <select id="countLinkBySL" resultType="int">
+        select count(*) from link_info where link_status = #{status} and label_id = #{labelId}
+    </select>
+
+    <select id="selectLinkByUserIdAndStatus" resultMap="linkInfoMap">
+        select * from link_info where user_id = #{userId} and link_status = #{status} order by create_date desc
+    </select>
+
+    <select id="countLinkByUserIdAndStatus" resultType="int">
+        select count(*) from link_info where user_id = #{userId} and link_status = #{status}
+    </select>
+
+    <insert id="insertLinkInfo" parameterType="cn.welfareZhu.item.myblog.model.LinkInfo" useGeneratedKeys="true"
+            keyProperty="linkId">
+        insert into link_info
+        (user_id,link_src,title,description,label_id,like_num,link_status,create_date,modify_date)
+        values
+        (#{userId},#{linkSrc},#{title},#{description},#{labelId},#{likeNum},#{linkStatus},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateLinkStatus">
+        update link_info set link_status = #{status} , modify_date = now() where link_id = #{linkId}
+    </update>
+
+    <update id="increaseLinkLikeNum" parameterType="Integer">
+        update link_info set like_num = like_num + 1 , modify_date = now() where link_id = #{linkId}
+    </update>
+
+</mapper>

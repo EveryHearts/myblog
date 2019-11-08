@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${articleBody.title}</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+<div id="mainPad">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            文章浏览
+        </div>
+        <div class="layui-card-body">
+            <fieldset class="layui-elem-field">
+                <legend>${articleBody.title}<span class="layui-badge-rim">${articleBody.labelValue}</span></legend>
+                <div class="layui-field-box">
+                    作者：<a class="anchor-blue-color" href="../user/browseUserInfo?userId=${articleBody.userId}">${articleBody.userNickname}</a>
+                    发布日期：<span class="anchor-pink-color">${articleBody.createDate,"yyyy-MM-dd HH:mm:ss"}</span>
+                    <span class="anchor-pink-color" style="float: right"><a href="" class="praiseBtn anchor-pink-color"><i class="layui-icon layui-icon-praise"></i><span style="display: none;" id="articleIdSpan">${articleBody.articleId}</span><span id="likeNumSpan">${articleBody.likeNum}</span></a></span>
+                    <hr class="layui-bg-blue">
+                    ${articleBody.content}
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <iframe id="commentIframe" src="../article/browseArticleComment?articleId=${articleBody.articleId}&pageNo=0" scrolling="yes" onload="changeFrameHeight()" frameborder="0" width="100%" height="auto"></iframe>
+</div>
+<script type="text/javascript">
+    function changeFrameHeight(){
+        var ifm= document.getElementById("commentIframe");
+        ifm.height=document.documentElement.clientHeight;
+    }
+    window.onresize=function(){
+        changeFrameHeight();
+    }
+    layui.use(['element','form','layer','layedit'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var editor=layui.layedit;
+
+        $('.praiseBtn').click(function () {
+            event.preventDefault();
+            var likeNum=$(this).find('span#likeNumSpan').html();
+            var articleId=$(this).find('span#articleIdSpan').html();
+            $.ajax({
+                url:'../article/praiseArticle'
+                ,type:'get'
+                ,data:{
+                    'articleId':articleId
+                }
+                ,success:function (result) {
+                    if (result==1){
+                        layer.msg('你已经赞过这篇文章啦');
+                        return false;
+                    }
+                    if (result==2){
+                        layer.msg('点赞失败，请检查你的登陆状态');
+                        return false;
+                    }
+                    if (result==0){
+                        likeNum++;
+                        layer.msg('点赞成功！');
+                        $('#likeNumSpan').html(likeNum);
+                    }
+                }
+                ,error:function () {
+                    layer.msg('系统错误，点赞失败');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

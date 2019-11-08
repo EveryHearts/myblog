@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+</head>
+<body>
+<ul class="layui-nav" lay-filter="" style="text-align: right;">
+    <li class="layui-nav-item"><a href="../home/homePage">首页Show</a></li>
+    <li class="layui-nav-item"><a href="../article/browsePublicArticleList?pageNo=0">文章Share</a></li>
+    <li class="layui-nav-item"><a href="../link/browsePublicLinkList?pageNo=0">链接Share</a></li>
+    <li class="layui-nav-item"><a href="../file/browsePublicFileList?pageNo=0">文件Share</a></li>
+    <li class="layui-nav-item"><a href="">公告Notify</a></li>
+    @if(session['loginStatus']==1){
+    <li class="layui-nav-item">
+        <a href="../user/browseLoginUserInfo">
+            @if(session['loginUser'].viaSrc==null||session['loginUser'].viaSrc==''){
+            <img src="../sys/default/defaultPortrait.jpg" class="layui-nav-img">
+            @}else{
+            <img src="${session['loginUser'].viaSrc}" class="layui-nav-img">
+            @}
+            ${session['loginUser'].userNickname}</a>
+        <dl class="layui-nav-child">
+            <dd><a href="../article/editorPage">发表文章</a></dd>
+            <dd><a href="../link/linkEditorPage">分享链接</a></dd>
+            <dd><a href="../file/uploadPage">上传文件</a></dd>
+        </dl>
+    </li>
+    <li class="layui-nav-item">
+        <a id="notifiesNumA" href="">消息中心</a>
+    </li>
+    @if(session['loginUser'].userAuth==2||session['loginUser'].userAuth==3){
+    <li class="layui-nav-item">
+        <a id="managerNotifyNumA" href="">管理员界面</a>
+    </li>
+    <script type="text/javascript">
+        $.ajax({
+            url: '../notifies/managerNotifyNum'
+            ,type: 'get'
+            ,success:function (result) {
+                if (result<=0||result==404){
+                    console.log('The Result si : '+result);
+                    return;
+                }
+                if (result>99){
+                    $('#managerNotifyNumA').append('<span class="layui-badge">'+'99+'+'</span>');
+                    return;
+                }
+                $('#managerNotifyNumA').append('<span class="layui-badge">'+result+'</span>')
+            }
+            ,error:function () {
+                swal({
+                    title:'系统消息'
+                    ,text:'发送通知查询请求失败'
+                    ,icon:'error'
+                });
+            }
+        });
+    </script>
+    @}
+    <li class="layui-nav-item">
+        <a href="../user/logoutAccount" onclick="logoutConfirm()">[退出]</a>
+    </li>
+    @}else{
+    <li class="layui-nav-item">
+        <a href="../user/loginPage">[你还没有登录账户哦，请点击此处登录！]</a>
+    </li>
+    @}
+</ul>
+<script type="text/javascript">
+    $.ajax({
+        url:'../notifies/loginUserNotifyNum'
+        ,type:'get'
+        ,success:function (result) {
+            if (result<=0||result==404){
+                return;
+            }
+            if (result>99){
+                $('#notifiesNumA').append('<span class="layui-badge">'+"99+"+'</span>');
+                return;;
+            }
+            $('#notifiesNumA').append('<span class="layui-badge">'+result+'</span>');
+        }
+        ,error:function () {
+            swal({
+                title:'系统消息'
+                ,text:'发送通知查询请求失败'
+                ,icon:'error'
+            });
+        }
+    })
+</script>
+</body>
+</html>

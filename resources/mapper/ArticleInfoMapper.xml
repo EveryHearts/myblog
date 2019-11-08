@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.ArticleInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="articleInfoMap" type="cn.welfareZhu.item.myblog.model.ArticleInfo">
+        <id property="articleId" column="article_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="labelId" column="label_id"/>
+        <result property="likeNum" column="like_num"/>
+        <result property="articleAuth" column="article_auth"/>
+        <result property="articleStatus" column="article_status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <resultMap id="queryArticleResultMap" type="cn.welfareZhu.item.myblog.util.QueryResult">
+        <result property="userId" column="user_id"/>
+        <result property="authValue" column="article_auth"/>
+        <result property="statusValue" column="article_status"/>
+    </resultMap>
+
+    <select id="selectArticleInfoByArticleId" parameterType="Integer" resultMap="articleInfoMap">
+        select * from article_info where article_id = #{articleId}
+    </select>
+
+    <select id="selectArticleInfoByAS" resultMap="articleInfoMap">
+        select * from article_info where article_auth = #{auth} and article_status = #{status} order by create_date desc
+    </select>
+
+    <select id="selectArticleInfoByAST" resultMap="articleInfoMap">
+        select * from article_info where article_auth = #{auth} and article_status = #{status} and title like '%${title}%'
+        order by create_date desc
+    </select>
+
+    <select id="selectArticleInfoByASL" resultMap="articleInfoMap">
+        select * from article_info where article_auth = #{auth} and article_status = #{status} and label_id = #{labelId}
+        order by create_date desc , like_num desc
+    </select>
+
+    <select id="selectArticleByUserIdAndAuth" resultMap="articleInfoMap">
+        select * from article_info where user_id = #{userId} and article_auth = #{auth} order by create_date desc
+    </select>
+
+    <select id="selectArticleByUserIdAndStatus" resultMap="articleInfoMap">
+        select * from article_info where user_id = #{userId} and article_status = #{status} order by create_date desc
+    </select>
+
+    <select id="selectArticleByUserIdAndAuthAndStatus" resultMap="articleInfoMap">
+        select * from article_info where user_id = #{userId} and article_auth = #{auth} and article_status = #{status} order by create_date desc
+    </select>
+
+    <select id="selectArticleUAS" parameterType="Integer" resultMap="queryArticleResultMap">
+        select user_id , article_auth , article_status from article_info where article_id = #{articleId}
+    </select>
+
+    <insert id="insertArticleInfo" parameterType="cn.welfareZhu.item.myblog.model.ArticleInfo" useGeneratedKeys="true"
+    keyProperty="articleId">
+        insert into article_info
+        (user_id,title,content,label_id,like_num,article_auth,article_status,create_date,modify_date)
+        values
+        (#{userId},#{title},#{content},#{labelId},#{likeNum},#{articleAuth},#{articleStatus},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateArticleStatus">
+        update article_info set article_status = #{status} , modify_date = now() where article_id = #{articleId}
+    </update>
+
+    <update id="updateArticleAuth">
+        update article_indo set article_auth = #{auth} , modify_date = now() where article_id = #{articleId}
+    </update>
+
+    <update id="increaseArticleLikeNum">
+        update article_info set like_num = like_num + 1 , modify_date = now() where article_id = #{articleId}
+    </update>
+
+</mapper>

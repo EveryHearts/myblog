@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.ManageRecordDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="manageRecordMap" type="cn.welfareZhu.item.myblog.model.ManageRecord">
+        <id property="recordId" column="record_id"/>
+        <result property="managerId" column="manager_id"/>
+        <result property="recordStatus" column="record_status"/>
+        <result property="processResult" column="process_result"/>
+        <result property="originId" column="origin_id"/>
+        <result property="originType" column="origin_type"/>
+        <result property="originUserId" column="origin_user_id"/>
+        <result property="content" column="content"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectManageRecordByRecordId" parameterType="Integer" resultMap="manageRecordMap">
+        select * from manage_record where record_id = #{recordId}
+    </select>
+
+    <select id="selectManageRecordByRecordStatus" parameterType="Integer" resultMap="manageRecordMap">
+        select * from manage_record where record_status order by create_date desc
+    </select>
+
+    <insert id="insertManageRecord" parameterType="cn.welfareZhu.item.myblog.model.ManageRecord" useGeneratedKeys="true"
+            keyProperty="recordId">
+        insert into manage_record
+        (manage_id,record_status,process_result,origin_id,origin_type,origin_user_id,content,create_date,modify_date)
+        values
+        (#{manageId},#{recordStatus},#{processResult},#{originId},#{originType},#{originUserId},#{content},#{createDate},#{modifyDate})
+    </insert>
+
+    <update id="updateRecordStatusByRecordId">
+        update manage_record set record_status = #{status} , modify_date = now() where record_id = #{recordId}
+    </update>
+
+    <update id="updateProcessResultByRecordId">
+        update manage_record set process_result = #{processResult} , modify_date = now() where record_id = #{recordId}
+    </update>
+
+</mapper>

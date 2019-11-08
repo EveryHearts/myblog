@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${userSearch.userNickname}的个人主页</title>
+    <script type="text/javascript"
+            src="https://apis.map.qq.com/tools/geolocation/min?key=RGUBZ-RZ3CJ-WCUF2-KN525-BKWNV-QQFH4&referer=myblog"></script>
+    <script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/userInfo.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<ul class="layui-nav" style="text-align: right;">
+    <li class="layui-nav-item"><a href="../home/homePage">首页Show</a></li>
+    <li class="layui-nav-item"><a href="../article/browseUserArticleList?userId=${userInfo.userId}&pageNo=0">
+        @if(session['loginUser']!=null&&userInfo.userId==session['loginUser'].userId){
+            我的
+        @}else{
+            ${userInfo.gender==0?"他的":"她的"}
+        @}
+        文章分享</a></li>
+    <li class="layui-nav-item"><a href="../link/browseUserLinkList?userId=${userInfo.userId}&pageNo=0">
+        @if(session['loginUser']!=null&&userInfo.userId==session['loginUser'].userId){
+            我的
+        @}else{
+            ${userInfo.gender==0?"他的":"她的"}
+        @}
+        链接分享</a></li>
+    <li class="layui-nav-item"><a href="../file/browseUserFileList?userId=${userInfo.userId}&pageNo=0">
+        @if(session['loginUser']!=null&&userInfo.userId==session['loginUser'].userId){
+            我的
+        @}else{
+            ${userInfo.gender==0?"他的":"她的"}
+        @}
+        文件分享</a></li>
+    <li class="layui-nav-item"><a href="../message/browseMessage?userId=${userInfo.userId}&pageNo=0">
+        @if(session['loginUser']!=null&&userInfo.userId==session['loginUser'].userId){
+            我的
+        @}else{
+            ${userInfo.gender==0?"他的":"她的"}
+        @}
+        留言板</a></li>
+    <li class="layui-nav-item"><a href="" onclick="returnPrePage()">[返回]</a></li>
+</ul>
+<div class="layui-card">
+    <div class="layui-card-header">${userSearch.userNickname}的个人信息</div>
+    <div id="mainPad" class="layui-container layui-card-body">
+        <div class="layui-row">
+            <div class="layui-col-md9 layui-col-lg9 layui-col-sm9">
+                <table class="layui-table" lay-skin="nob">
+                    <colgroup>
+                        <col width="100">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td>昵称</td>
+                        <td>
+                            ${userSearch.userNickname}
+                            @switch(userSearch.userAuth){
+                            @case 0:
+                            <span class="layui-badge layui-bg-green">账号待审核</span>
+                            @break;
+                            @case 1:
+                            <span class="layui-badge layui-bg-blue">本站用户</span>
+                            @break;
+                            @case 2:
+                            <span class="layui-badge layui-bg-cyan">管理员</span>
+                            @break;
+                            @case 3:
+                            <span class="layui-badge layui-bg-orange">站长</span>
+                            @break;
+                            @}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>姓名</td>
+                        <td>
+                            ${userInfo.realname!"没有填写哎"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>性别</td>
+                        <td>
+                            ${userInfo.gender==0?"是小伙子哦":"是姑娘哦"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>年龄</td>
+                        <td>
+                            ${userInfo.age!=null?userInfo.age:"保密~"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>手机号</td>
+                        <td>
+                            ${userInfo.phoneNum!"未填写"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>QQ</td>
+                        <td>
+                            ${userInfo.qqNum!"未填写"}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="layui-col-md3 layui-col-lg3 layui-col-sm3">
+                <div id="portraitPad">
+                    @if(userSearch.viaSrc!=null){
+                    <img class="portraitImg" src="${userSearch.viaSrc}">
+                    @}else{
+                    <img class="portraitImg" src="../sys/default/defaultPortrait.jpg">
+                    @}
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-md12 layui-col-sm12 layui-col-lg12">
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title">个人介绍</h2>
+                        <div class="layui-colla-content layui-show">
+                            ${userInfo.description!"这只小虾米什么都没有说哎~"}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-md12 layui-col-sm12 layui-col-lg12">
+                    @if(userSearch.userId==session['loginUser'].userId){
+                    <div>
+                        <div id="btnPad" class="layui-form-item">
+                            <center>
+                                <div class="layui-input-block">
+                                    <button onclick="gotoUserInfoModify()" class="layui-btn">修改信息</button>
+                                    <button onclick="returnPrePage()" class="layui-btn layui-btn-primary">返回</button>
+                                </div>
+                            </center>
+                        </div>
+                    </div>
+                    @}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function returnPrePage() {
+        event.preventDefault();
+        history.back();
+    }
+
+    function gotoUserInfoModify(){
+        event.preventDefault();
+        location.href='../user/modifyUserInfo';
+    }
+
+    layui.use(['element', 'layer'], function () {
+        var element = layui.element;
+        var layer = layui.layer;
+    });
+</script>
+</body>
+</html>

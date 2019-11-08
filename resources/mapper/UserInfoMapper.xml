@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.welfareZhu.item.myblog.dao.UserInfoDao">
+
+    <cache-ref namespace="cn.welfareZhu.item.myblog.dao.UserSearchDao"/>
+
+    <resultMap id="userInfoMap" type="cn.welfareZhu.item.myblog.model.UserInfo">
+        <id property="userId" column="user_id"/>
+        <result property="realname" column="realname"/>
+        <result property="gender" column="gender"/>
+        <result property="age" column="age"/>
+        <result property="phoneNum" column="phone_num"/>
+        <result property="qqNum" column="qq_num"/>
+        <result property="address" column="address"/>
+        <result property="description" column="description"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectUserInfoByUserId" parameterType="Integer" resultMap="userInfoMap">
+        select * from user_info where user_id = #{userId}
+    </select>
+
+    <insert id="insertUserInfo" parameterType="cn.welfareZhu.item.myblog.model.UserInfo">
+        insert into user_info (
+        user_id,realname,gender,age,phone_num,qq_num,address,description,create_date,modify_date
+        ) values (
+        #{userId},#{realname},#{gender},#{age},#{phoneNum},#{qqNum},#{address},#{description},#{createDate},#{modifyDate}
+        )
+    </insert>
+
+    <update id="updateUserInfo" parameterType="cn.welfareZhu.item.myblog.model.UserInfo">
+        update user_info
+        <set>
+            <if test="realname != null">realname = #{realname},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="age != null and age != ''">age = #{age},</if>
+            <if test="phoneNum != null">phone_num = #{phoneNum},</if>
+            <if test="qqNum != null">qq_num = #{qqNum},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="description != null">description = #{description},</if>
+            modify_date = now()
+        </set>
+        where user_id = #{userId}
+    </update>
+</mapper>

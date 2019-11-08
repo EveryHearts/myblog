@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>收藏链接编辑上传</title>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../js/layui-extend-config.js"></script>
+    <script type="text/javascript" src="../js/logoutConfirm.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/fontStyle.css">
+</head>
+<body>
+<span id="userIdSpan" style="display: none;">${session['loginUser'].userId!}</span>
+<div id="navPad"></div>
+<script type="text/javascript">
+    $("#navPad").load('../component/nav');
+</script>
+<div id="mainPad">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            编辑收藏链接
+        </div>
+        <div class="layui-card-body">
+            <form class="layui-form" action="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题</label>
+                    <div class="layui-input-inline">
+                        <input id="titleInput" type="text" style="font-weight: bold;" class="layui-input" autocomplete="off" placeholder="请输入链接标题">
+                    </div>
+                    <button id="submitBtn" class="layui-btn">提交分享</button>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">URL</label>
+                    <div class="layui-input-block">
+                        <input id="urlInput" type="text" class="layui-input" autocomplete="off" placeholder="请输入你要分享的网址">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">链接标签</label>
+                    <div class="layui-input-inline">
+                        <input id="labelValue" type="text" class="layui-input" placeholder="请输入或选择合适的标签"  autocomplete="off">
+                        <input id="labelInput" type="text" class="layui-input layui-hide" name="labelId">
+                    </div>
+                    <div class="layui-input-inline">
+                        <span class="layui-form-mid layui-word-aux">这关系到文章分类和检索</span>
+                    </div>
+                    <div class="layui-input-inline">
+                        <button id="labelConfirmBtn" class="layui-btn layui-btn-primary">确定标签</button>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">描述</label>
+                    <div class="layui-input-block">
+                        <textarea id="descriptionInput" style="display: none;"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var urlReg=/(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?/;
+    var titleReg=/^[\u4E00-\u9FA5A-Za-z0-9_]{1,20}$/;
+    layui.use(['element','form','layer','layedit'],function () {
+        var element=layui.element;
+        var form=layui.form;
+        var layer=layui.layer;
+        var layedit=layui.layedit;
+
+        var editor=layedit.build(
+            'descriptionInput'
+            ,{
+                tool:['left', 'center', 'right', '|', 'face']
+                ,height:100
+            }
+        );
+
+        $("#labelConfirmBtn").click(function () {
+            event.preventDefault();
+            var labelValue=$("#labelValue").val();
+            $.ajax({
+                url:'../article/getArticleLabelId'
+                ,type:'get'
+                ,data:{
+                    'labelValue':labelValue
+                }
+                ,success:function (result) {
+                    if (result==-1){
+                        swal({
+                            title:'系统消息'
+                            ,icon:'error'
+                            ,text:'服务器发生错误，标签值查询失败'
+                        });
+                        return false;
+                    }
+                    $('#labelInput').val(result);
+                    $('#labelValue').attr('disabled','disabled');
+                    $('#labelConfirmBtn').attr('disabled','disabled');
+                    return true;
+                }
+                ,error:function () {
+                    swal({
+                        title:'系统消息'
+                        ,icon:'error'
+                        ,text:'服务器发生错误'
+                    });
+                }
+            });
+        });
+
+        $('#submitBtn').click(function () {
+            event.preventDefault();
+            var isOK=true;
+            var titleValue=$('#titleInput').val();
+            var urlValue=$('#urlInput').val();
+            var descriptionValue=layedit.getText(editor);
+            var descriptionContent=layedit.getContent(editor);
+            var labelValue=$('#labelInput').val();
+            if (!titleReg.test(titleValue)){
+                layer.msg('输入的标题须是1-20个中英文和数字');
+                return false;
+            }
+            if (!urlReg.test(urlValue)){
+                layer.msg('你输入的链接URL不合法！');
+                return false;
+            }
+            $.ajax({
+                url: urlValue
+                ,type: 'GET'
+                ,complete: function(response){
+                    if(response.status == 404){
+                        isOK=false;
+                    }
+                }
+            });
+            if (!isOK) {
+                layer.msg('你输入的URL无效或者无法访问!');
+                return false;
+            }
+            if (descriptionContent.length<7||descriptionValue.length>140) {
+                layer.msg('请输入1-140个字符的描述!');
+                return false;
+            }
+            if (labelValue==''||labelValue==null){
+                layer.msg('请输入或选择标签！');
+                return false;
+            }
+            $.ajax({
+                url:'../link/uploadLink'
+                ,type:'post'
+                ,data:{
+                    'title':titleValue
+                    ,'description':descriptionContent
+                    ,'linkSrc':urlValue
+                    ,'labelId':labelValue
+                }
+                ,success:function (res) {
+                    if (res==1){
+                        layer.msg('那你还未登陆，请登录后再次尝试此操作');
+                        return false;
+                    }
+                    if (res==-1){
+                        layer.msg('你的账号状态异常，请联系管理员');
+                        return false;
+                    }
+                    if (res==0){
+                        layer.msg('提交成功！');
+                        var userId=$('#userIdSpan').html();
+                        if (userId!=null&&userId!=''){
+                            location.href='../link/browseUserLinkList?userId='+userId+'&pageNo=0';
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
